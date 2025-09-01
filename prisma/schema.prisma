@@ -44,8 +44,7 @@ model Customer {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  // Back-reference for the Quote.customer relation
-  quotes       Quote[]
+  quotes Quote[] // back-reference for Quote.customer
 }
 
 model Quote {
@@ -60,74 +59,9 @@ model Quote {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
-  customer     Customer    @relation(fields: [customerId
-cd /workspaces/cleanaut
+  customer Customer @relation(fields: [customerId], references: [id])
 
-# Overwrite prisma/schema.prisma with a valid schema (adds Customer.quotes back-relation)
-cat > prisma/schema.prisma <<'PRISMA'
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-model User {
-  id         String   @id @default(cuid())
-  email      String   @unique
-  name       String?
-  role       UserRole @default(OWNER)
-  businessId String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-enum UserRole {
-  OWNER
-  ADMIN
-  DISPATCH
-  CLEANER
-}
-
-model Customer {
-  id           String   @id @default(cuid())
-  businessId   String
-  firstName    String
-  lastName     String
-  email        String?
-  phone        String?
-  addressLine1 String
-  addressLine2 String?
-  city         String
-  state        String
-  postalCode   String
-  sqft         Int?
-  bedrooms     Int?
-  bathrooms    Int?
-  pets         Boolean  @default(false)
-  notes        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  // Back-reference for the Quote.customer relation
-  quotes       Quote[]
-}
-
-model Quote {
-  id           String      @id @default(cuid())
-  businessId   String
-  customerId   String
-  serviceType  ServiceType
-  baseMinutes  Int
-  addOnMinutes Int         @default(0)
-  priceCents   Int
-  status       QuoteStatus @default(DRAFT)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-
-  customer     Customer    @relation(fields: [customerId], references: [id])
+  @@index([customerId])
 }
 
 enum ServiceType {
